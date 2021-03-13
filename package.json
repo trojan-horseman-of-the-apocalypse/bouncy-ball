@@ -1,0 +1,23 @@
+{
+  "name": "yieldify-ball-app",
+  "version": "1.0.0",
+  "description": "bouncing ball app for yieldify technical interview",
+  "main": "index.js",
+  "scripts": {
+    "build": "mkdir -p dist && minify src/bouncing-ball.js > dist/bouncing-ball.min.js && minify src/bouncing-ball.html > dist/bouncing-ball.min.html && minify src/styles.css > dist/styles.min.css",
+    "lint": "eslint './src/*.js'",
+    "lint:fix": "eslint --fix './src/*.js'"
+  },
+  "author": "Haydn Welch",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^7.22.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "minify": "^7.0.1"
+  }
+}

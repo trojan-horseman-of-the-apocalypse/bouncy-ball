@@ -1,8 +1,17 @@
 {
-  "extends": "airbnb",
+  "extends": ["airbnb", "plugin:p5js/p5"],
   "globals": {
     "window": true,
     "document": true
+  },
+  "plugins": [
+    "p5js"
+  ],
+
+  "env": {
+      "browser": true,
+      "es2021": true,
+      "p5js/p5": true
   }
 }
 

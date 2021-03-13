@@ -1,87 +1,69 @@
-// initialise canvas and context
-const canvas = document.getElementById('canvas');
-const context = canvas.getContext('2d');
+const gravity = 0.981;
+const floorFriction = -0.8;
+const wallFriction = -0.4;
+const balls = [];
+const radius = 40;
+const randomDir = Math.floor(Math.random() * 2);
 
-// physical variables
-const g = 0.981; // gravity
-const fac = 0.8; // velocity reduction factor per bounce
-const radius = 20; // ball radius
-
-const state = [];
-
-function drawBall(ball, oldXPos, oldYPos) {
-  context.clearRect(oldXPos - radius, oldYPos - radius, radius * 2, radius * 2); // clear ball arcs
-  context.beginPath();
-  context.arc(ball.x, ball.y, radius, 0, 2 * Math.PI, true); // draw ball
-  context.closePath();
-  context.fill();
+function setup() {
+  createCanvas(window.windowWidth, window.windowHeight);
+  noStroke();
+  fill(0);
 }
 
-function update(ball) {
-  const xToRemove = ball.x;
-  const yToRemove = ball.y;
-  const newBall = ball
-  // update velocity
-  newBall.vy += g; // gravity
-
-  // update position
-  newBall.x += newBall.vx;
-  newBall.y += newBall.vy;
-
-  // bounce the ball off each wall
-  if (newBall.x - radius / 2 < 0 && newBall.vx < 0) {
-    newBall.vx = -newBall.vx;
-  }
-  if (newBall.x + radius / 2 > canvas.width && newBall.vx > 0) {
-    newBall.vx = -newBall.vx;
-  }
-  if (newBall.y - radius / 2 < 0 && newBall.vy < 0) {
-    newBall.vy = -newBall.vy;
+class Ball {
+  constructor(x, y, dia) {
+    this.x = x;
+    this.y = y;
+    this.vx = randomDir === 0 ? -Math.floor(Math.random() * 10) : Math.floor(Math.random() * 10);
+    this.vy = randomDir === 0 ? -Math.floor(Math.random() * 10) : Math.floor(Math.random() * 10);
+    this.diameter = dia;
   }
 
-  // handle bouncing
-  if (newBall.y > canvas.height - radius) {
-    newBall.y = canvas.height - radius;
-    // stop ball after x bounces
-    if (newBall.remainingBounces > 0) {
-      newBall.vy *= -fac;
-      newBall.remainingBounces -= 1;
-    } else {
-      newBall.vy = 0;
-      newBall.vx = 0;
+  move() {
+    this.vy += gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (this.x + this.diameter / 2 > width) {
+      this.x = width - this.diameter / 2;
+      this.vx *= wallFriction;
+    } else if (this.x - this.diameter / 2 < 0) {
+      this.x = this.diameter / 2;
+      this.vx *= wallFriction;
+    }
+    if (this.y + this.diameter / 2 > height) {
+      this.y = height - this.diameter / 2;
+      this.vy *= floorFriction;
+    } else if (this.y - this.diameter / 2 < 0) {
+      this.y = this.diameter / 2;
+      this.vy *= floorFriction;
+    }
+    if (this.y + this.diameter / 2 === height && this.vy > -0.6) {
+      this.vy = 0;
+      this.vx = 0;
     }
   }
-  // update the newBall
-  drawBall(newBall, xToRemove, yToRemove);
+
+  display() {
+    ellipse(this.x, this.y, this.diameter, this.diameter);
+  }
 }
 
-// ensure that code does not run before page has loaded
-window.onload = document.getElementById('canvas').addEventListener('click', (e) => {
-  // setup random velocities
-  let vx = Math.floor(Math.random() * 10);
-  let vy = Math.floor(Math.random() * 10);
-  // setup random direction
-  const randomDir = Math.floor(Math.random() * 2);
-  if (randomDir === 0) {
-    vx = -vx;
-  }
-  if (randomDir === 0) {
-    vy = -vy;
-  }
-  // tracking state of latest ball
-  state.push({
-    x: e.offsetX,
-    y: e.offsetY,
-    vx,
-    vy,
-    remainingBounces: 50,
-  });
-  // if this is the first ball, kick off the updating of state
-  if (state.length === 1) {
-    setInterval(() => {
-      for (let i = 0; i < state.length; i += 1) {
-        update(state[i]);
-      }
-    }, 1000 / 60); // 60 frames per second
-  }
+document.querySelector('body').addEventListener('click', (e) => {
+  balls.push(new Ball(
+    e.offsetX,
+    e.offsetY,
+    radius,
+  ));
 });
+
+function draw() {
+  if (balls.length > 0) {
+    background(255);
+    balls.forEach((ball) => {
+      ball.move();
+      ball.display();
+    });
+  }
+}
